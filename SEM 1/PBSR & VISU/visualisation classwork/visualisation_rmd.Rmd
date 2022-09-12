@@ -2,8 +2,8 @@
 title: "Visualisation with R notes"
 author: "Roudranil Das"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 ### CW 12/08/22 {-}
 
@@ -113,9 +113,9 @@ qplot(log(carat), log(price), data = small,
 
 ## CW 02/09/2022
 
-```{r, fig=TURE}
+```{r, fig=TRUE}
 library(tidyverse)
-data <- diamonds[sample(1:nrow(diamonds), 15000, replace = F),]
+data <- diamonds[sample(1:nrow(diamonds), 15000, replace = FALSE),]
 ```
 
 ```{r}

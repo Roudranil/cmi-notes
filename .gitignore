@@ -29,3 +29,5 @@ SEM 1/random works (R)/
 *.Rhistory
 *.csv
 *.tex
+.Rproj.user
+*desktop.ini
