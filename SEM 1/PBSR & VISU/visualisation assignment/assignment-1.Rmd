@@ -79,7 +79,7 @@ N = rep(5000, times = 8)
 ```
 
 For $\lambda = 0.7$, we get the following $4$ histograms:
-```{r fig=TRUE, fig.dim=c(8,5), fig.align='center'}
+```{r fig=TRUE, fig.dim=c(7,5), fig.align='center'}
 dataset = data.frame()
 for(i in 1:4){
     # the datasets all created are binded rowwise
@@ -90,7 +90,7 @@ dataset %>%
     mutate(n = as.factor(n)) %>% 
     ggplot(aes(x = mean)) + 
     geom_histogram(bins = 20, aes(color = n, fill = n), alpha = 0.5) + 
-    facet_grid(vars(lambda), vars(n), scales = "free", labeller = label_both) +
+    facet_grid(vars(lambda), vars(n), scales = "free_y", labeller = label_both) +
     theme(legend.position = "none") +
     labs(title = paste("Histograms corresponding to lambda =", lambdas[1], sep = " "),
          x = "Sample means",
@@ -98,7 +98,7 @@ dataset %>%
 ```
 
 For the same value of $\lambda$, we get the following $4$ QQ-plots.
-```{r fig.dim=c(5,5)}
+```{r fig.dim=c(6,4)}
 dataset = data.frame()
 for(i in 1:4){
     dataset = rbind(dataset, simulate_clt(lambdas[i], n[i], N[i]))
@@ -107,12 +107,12 @@ dataset %>%
     ggplot(aes(sample = mean)) +
     geom_qq(size = 0.6) +
     geom_qq_line(color = "blue") +
-    facet_wrap(vars(n), scales = "free") +
+    facet_wrap(vars(n), scales = "free", nrow = 1) +
     labs(title = "QQ-plot for lambda = 0.7")
 ```
 
 For $\lambda = 1.7$, we get the following $4$ histograms:
-```{r fig=TRUE, fig.dim=c(8,5)}
+```{r fig=TRUE, fig.dim=c(7,5)}
 dataset = data.frame()
 for(i in 5:8){
     dataset = rbind(dataset, simulate_clt(lambdas[i], n[i], N[i]))
@@ -121,7 +121,7 @@ dataset %>%
     mutate(n = as.factor(n)) %>% 
     ggplot(aes(x = mean)) + 
     geom_histogram(bins = 20, aes(color = n, fill = n), alpha = 0.5) + 
-    facet_grid(vars(lambda), vars(n), scales = "free", labeller = label_both) +
+    facet_grid(vars(lambda), vars(n), scales = "free_y", labeller = label_both) +
     theme(legend.position = "none") + 
     labs(title = paste("Histograms corresponding to lambda =", lambdas[5], sep = " "),
          x = "Sample means",
@@ -129,7 +129,7 @@ dataset %>%
 ```
 
 And we follow this the corresponding QQ-plots:
-```{r fig.dim=c(5,5)}
+```{r fig.dim=c(6,4)}
 dataset = data.frame()
 for(i in 5:8){
     dataset = rbind(dataset, simulate_clt(lambdas[i], n[i], N[i]))
@@ -138,11 +138,11 @@ dataset %>%
     ggplot(aes(sample = mean)) +
     geom_qq(size = 0.6) +
     geom_qq_line(color = "blue") +
-    facet_wrap(vars(n), scales = "free") +
+    facet_wrap(vars(n), scales = "free", nrow = 1) +
     labs(title = "QQ-plot for lambda = 1.7")
 ```
 
-### **Problem 2:** (2 points)
+## **Problem 2:** (2 points)
 
 Consider the `JohnsonJohnson` dataset. The dataset contains the Quarterly earnings (dollars) per Johnson & Johnson share 1960–80.
 
@@ -198,7 +198,7 @@ jj %>%
 
 
 
-### **Problem 3:** (2 points)
+## **Problem 3:** (2 points)
 
 - An experiment was conducted to measure and compare the effectiveness of various feed supplements on the growth rate of chickens.
 
@@ -248,7 +248,7 @@ data %>%
          y = "Density")
 ```
 
-### **Problem 4:** (3 points)
+## **Problem 4:** (3 points)
 
 Consider the `EuStockMarkets` data available in `R`. Contains the daily closing prices of major European stock indices: Germany DAX (Ibis), Switzerland SMI, France CAC, and UK FTSE. The data are sampled in business time, i.e., weekends and holidays are omitted.
 
@@ -270,8 +270,81 @@ f) Check which market outperform others during the same time?
 
 Make all your plots using `ggplot`.
 
+Answer: We first load the dataset and convert it to a dataframe. Then we find the index of the data and the number of observations.
+
 ```{r}
-## write your R-function for problem 4 here
-##
-##
+stockdata = data.frame(EuStockMarkets)
+stockdata_idx = as.numeric(rownames(stockdata))
+N = length(stockdata_idx)
 ```
+
+a)
+
+```{r}
+stockdata %>% 
+    pivot_longer(1:4, names_to = c("index"), values_to = "closing_values") %>% 
+    mutate(idx = rep(stockdata_idx, each = 4)) %>% 
+    ggplot(aes(x = idx, y = closing_values, color = index)) + 
+    geom_line(size = 0.5) +
+    labs(title = "Time series plot of P_t by for all markets",
+         x = "Time points",
+         y = "Daily closing prices",
+         color = "Market Index")
+```
+
+b)
+
+```{r}
+returndata = data.frame("idx" = stockdata_idx[2:N])
+for(column in colnames(stockdata)){
+    returndata[column] = log(stockdata[2:N, column]) - log(stockdata[1:(N-1),column])
+}
+
+returndata %>% 
+    pivot_longer(2:5, names_to = c("index"), values_to = "closing_values") %>% 
+    mutate(idx = rep(stockdata_idx[2:N], each = 4)) %>% 
+    ggplot(aes(x = idx, y = closing_values, color = index)) + 
+    geom_line(size = 0.1) +
+    facet_wrap(vars(index), ncol = 1, nrow = 4) +
+    labs(title = "Time series plot of r_t for all markets",
+         x = "Time points",
+         y = "Daily return",
+         color = "Market Index") +
+    theme(legend.position = "none")
+```
+
+c)
+
+
+```{r}
+stockdata %>% 
+    pivot_longer(1:4, names_to = c("index"), values_to = "closing_values") %>%
+    ggplot(aes(x = closing_values, fill = index)) + 
+    geom_histogram(color = "white") +
+    labs(title = "Histogram of P_t",
+         x = "Closing values",
+         y = "Count",
+         fill = "Market Index")
+```
+
+d)
+
+```{r}
+returndata %>% 
+    pivot_longer(2:5, names_to = c("index"), values_to = "closing_values") %>% 
+    mutate(idx = rep(stockdata_idx[2:N], each = 4)) %>% 
+    ggplot(aes(x = closing_values, fill = index)) + 
+    geom_histogram(color = "white") +
+    labs(title = "Histogram of r_t",
+         y = "Count",
+         x = "Daily return",
+         fill = "Market Index")
+```
+
+e)
+
+```{r}
+
+```
+
+
