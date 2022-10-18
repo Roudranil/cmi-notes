@@ -33,5 +33,6 @@ SEM 1/random works (R)/
 *.Rhistory
 *.csv
 *.tex
+*.thm
 .Rproj.user
 *desktop.ini
